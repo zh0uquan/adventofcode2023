@@ -1,4 +1,10 @@
-use itertools::Itertools;
+use nom::branch::alt;
+use nom::bytes::complete::tag;
+use nom::character::complete::u32 as nom_u32;
+use nom::error::Error;
+use nom::multi::separated_list1;
+use nom::sequence::{preceded, separated_pair};
+use nom::IResult;
 
 fn main() {
     let input = include_str!("input.txt");
@@ -8,30 +14,55 @@ fn main() {
 
 #[derive(Default)]
 struct Game {
-    id: usize,
-    blue: usize,
-    red: usize,
-    green: usize,
+    id: u32,
+    blue: u32,
+    red: u32,
+    green: u32,
+}
+
+type ColorPairs<'a> = Vec<(u32, &'a str)>;
+
+fn parse_game(
+    input: &str,
+) -> IResult<&str, (u32, Vec<ColorPairs<'_>>), Error<&str>> {
+    separated_pair(
+        preceded(tag("Game "), nom_u32),
+        tag(":"),
+        parse_colors,
+    )(input)
+}
+
+fn parse_colors(
+    input: &str,
+) -> IResult<&str, Vec<ColorPairs<'_>>, Error<&str>> {
+    separated_list1(tag(";"), parse_color_pairs)(input)
+}
+// Game 1: 3 blue, 4 red; 1 red, 2 green, 6 blue; 2 green
+
+fn parse_color_pairs(
+    input: &str,
+) -> IResult<&str, ColorPairs, Error<&str>> {
+    separated_list1(tag(","), preceded(tag(" "), parse_color_number))(
+        input,
+    )
+}
+
+fn parse_color_number(
+    input: &str,
+) -> IResult<&str, (u32, &str), Error<&str>> {
+    separated_pair(
+        nom_u32,
+        tag(" "),
+        alt((tag("blue"), tag("red"), tag("green"))),
+    )(input)
 }
 
 impl Game {
     fn new(line: &str) -> Self {
-        let (game, cubes) = line.split(':').collect_tuple().unwrap();
-        let (_, id) = game.split_whitespace().collect_tuple().unwrap();
-        let id = id.parse().unwrap();
-        let mut red = 0;
-        let mut green = 0;
-        let mut blue = 0;
-        for colors in cubes.split(';') {
-            for color in colors.split(',') {
-                let (number, color) = color
-                    .strip_prefix(' ')
-                    .unwrap()
-                    .split_whitespace()
-                    .collect_tuple()
-                    .unwrap();
-
-                let number = number.parse().unwrap();
+        let (_, (id, pairs)) = parse_game(line).unwrap();
+        let (mut red, mut green, mut blue) = (0, 0, 0);
+        for colors in pairs {
+            for (number, color) in colors {
                 match color {
                     "red" => red = red.max(number),
                     "blue" => blue = blue.max(number),
@@ -48,12 +79,12 @@ impl Game {
         }
     }
 
-    fn power_of_game(&self) -> usize {
+    fn power_of_game(&self) -> u32 {
         self.red * self.green * self.blue
     }
 }
 
-fn part1(input: &str) -> usize {
+fn part1(input: &str) -> u32 {
     input
         .lines()
         .map(Game::new)
@@ -62,7 +93,7 @@ fn part1(input: &str) -> usize {
         .sum()
 }
 
-fn part2(input: &str) -> usize {
+fn part2(input: &str) -> u32 {
     input
         .lines()
         .map(Game::new)
