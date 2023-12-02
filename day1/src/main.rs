@@ -48,9 +48,9 @@ fn part2(input: &str) -> u32 {
                 v.first().unwrap().to_string(),
                 v.last().unwrap().to_string(),
             ]
-                .join("")
-                .parse::<u32>()
-                .unwrap()
+            .join("")
+            .parse::<u32>()
+            .unwrap()
         })
         .sum()
 }
