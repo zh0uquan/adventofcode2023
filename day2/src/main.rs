@@ -37,7 +37,6 @@ fn parse_colors(
 ) -> IResult<&str, Vec<ColorPairs<'_>>, Error<&str>> {
     separated_list1(tag(";"), parse_color_pairs)(input)
 }
-// Game 1: 3 blue, 4 red; 1 red, 2 green, 6 blue; 2 green
 
 fn parse_color_pairs(
     input: &str,
