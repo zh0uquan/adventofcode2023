@@ -10,3 +10,11 @@ indoc = { workspace = true }
 nom = { workspace = true }
 rstest = { workspace = true }
 itertools = { workspace = true }
+
+
+[dev-dependencies]
+divan =  { workspace = true }
+
+[[bench]]
+name = "bench"
+harness = false
