@@ -10,7 +10,7 @@ indoc = { workspace = true }
 nom = { workspace = true }
 rstest = { workspace = true }
 itertools = { workspace = true }
-
+indicatif = { workspace = true }
 
 [dev-dependencies]
 divan =  { workspace = true }

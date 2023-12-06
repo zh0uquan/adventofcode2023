@@ -5,7 +5,6 @@ fn main() {
     divan::main();
 }
 
-// Define a `fibonacci` function and register it for benchmarking.
 #[divan::bench]
 fn bench_part1() {
     let input = include_str!("../src/input.txt");

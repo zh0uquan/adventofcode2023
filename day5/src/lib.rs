@@ -1,5 +1,6 @@
 use std::ops::Range;
 
+use indicatif::ProgressIterator;
 use itertools::Itertools;
 use nom::bytes::complete::tag;
 use nom::character::complete::{
@@ -7,27 +8,49 @@ use nom::character::complete::{
 };
 use nom::combinator::opt;
 use nom::error::Error;
-use nom::IResult;
 use nom::multi::{many1, separated_list1};
 use nom::sequence::{
     delimited, pair, preceded, separated_pair, terminated,
 };
+use nom::IResult;
 
-
-fn find_min<T: Iterator<Item=u64>>(it: T, maps: &[Map]) -> u64 {
+fn find_min<T: ExactSizeIterator<Item = u64>>(
+    it: T,
+    maps: &[Map],
+) -> u64 {
     it.map(|n| {
         maps.iter().fold(n, |mut acc, m| {
             acc = m.convert(acc);
             acc
         })
     })
-        .min()
-        .unwrap()
+    .min()
+    .unwrap()
 }
 
 pub fn part1(input: &str) -> u64 {
     let (_, (seeds, maps)) = parse_garden(input).unwrap();
     find_min(seeds.into_iter(), &maps)
+}
+
+pub fn part2_brute_force(input: &str) -> u64 {
+    let (_, (seeds, maps)) = parse_garden(input).unwrap();
+    let seeds: Vec<u64> = seeds
+        .into_iter()
+        .tuples()
+        .flat_map(|t: (u64, u64)| t.0..t.1 + t.0)
+        .collect();
+    seeds
+        .into_iter()
+        .progress()
+        .map(|n| {
+            maps.iter().fold(n, |mut acc, m| {
+                acc = m.convert(acc);
+                acc
+            })
+        })
+        .min()
+        .unwrap()
 }
 
 pub fn part2(input: &str) -> u64 {
@@ -36,7 +59,7 @@ pub fn part2(input: &str) -> u64 {
         .into_iter()
         .tuples()
         .map(|t: (u64, u64)| t.0..t.1 + t.0)
-        .map(|r| {
+        .flat_map(|r| {
             maps.iter().fold(vec![r], |acc, m| {
                 let mut new_acc = vec![];
                 for r in acc {
@@ -45,12 +68,6 @@ pub fn part2(input: &str) -> u64 {
                 new_acc
             })
         })
-        .reduce(|mut a, b| {
-            a.extend(b);
-            a
-        })
-        .unwrap()
-        .iter()
         .sorted_by(|r1, r2| r1.start.cmp(&r2.start))
         .next()
         .unwrap()
@@ -73,78 +90,13 @@ impl<'a> Map<'a> {
             .unwrap_or(n)
     }
 
-    // fn convert_range(&self, r: Range<u64>) -> Vec<Range<u64>> {
-    //     let mut intervals: Vec<(Range<u64>, Range<u64>)> = self
-    //         .range_maps
-    //         .iter()
-    //         .map(|r_map| (r_map.src_range.clone(), r_map.dst_range.clone()))
-    //         .collect();
-    //
-    //     intervals.sort_by(|t1, t2| t1.0.start.cmp(&t2.0.start));
-    //     let mut start = r.start;
-    //     let end = r.end;
-    //     let mut converted = vec![];
-    //     let mut unchanged = vec![];
-    //
-    //     while start < end && !intervals.is_empty() {
-    //         let (src_r, dst_r) = intervals.remove(0);
-    //         if src_r.end < start || src_r.start >= end {
-    //             continue;
-    //         }
-    //         if src_r.start <= start && src_r.end >= end {
-    //             converted.push(
-    //                 (start - src_r.start + dst_r.start)..(end - src_r.start + dst_r.start)
-    //             );
-    //             break;
-    //         }
-    //         if src_r.start < start {
-    //             converted.push(
-    //                 (start - src_r.start + dst_r.start)..(src_r.end - src_r.start + dst_r.start)
-    //             );
-    //             start = src_r.end;
-    //             continue;
-    //         }
-    //         if src_r.start > start && src_r.end < end {
-    //             unchanged.push(start..src_r.start - 1);
-    //             converted.push(
-    //                 dst_r.start..(end.min(src_r.end) - src_r.start + dst_r.start)
-    //             );
-    //             start = src_r.end;
-    //             continue;
-    //         }
-    //     }
-    //     converted.extend(unchanged);
-    //     let converted: Vec<Range<u64>> = converted
-    //         .into_iter()
-    //         .sorted_by(|r1, r2| r1.start.cmp(&r2.start))
-    //         .coalesce(|r1, r2| {
-    //             if (r1.start).max(r2.start) <= (r1.end).min(r2.end) {
-    //                 Ok(r1.start.min(r2.start)..(r1.end).max(r2.end))
-    //             } else {
-    //                 Err((r1, r2))
-    //             }
-    //         })
-    //         .collect();
-    //
-    //     if converted.is_empty() {
-    //         return vec![start..end];
-    //     }
-    //     converted
-    //
-    //     // (10 - 50)
-    //     // if case (1 - 9) (50 - 90)
-    //     // if case (9 - 51)
-    //     // if case (11, 51)
-    //     // (1..1) (3-7)
-    // }
-
-
     fn convert_range_v2(&self, r: Range<u64>) -> Vec<Range<u64>> {
         let mut converted = vec![];
         let mut unchanged = vec![];
         let (mut start, end) = (r.start, r.end);
 
-        let convert_ranges: Vec<(Range<u64>, Range<u64>)> = self.range_maps
+        let convert_ranges: Vec<(Range<u64>, Range<u64>)> = self
+            .range_maps
             .iter()
             .filter_map(|m| m.convert_range(r.clone()))
             .sorted_by(|r1, r2| r1.0.start.cmp(&r2.0.start))
@@ -187,18 +139,29 @@ impl RangeMap {
         None
     }
 
-    fn convert_range(&self, r: Range<u64>) -> Option<(Range<u64>, Range<u64>)> {
+    fn convert_range(
+        &self,
+        r: Range<u64>,
+    ) -> Option<(Range<u64>, Range<u64>)> {
         // r: (start, end)
         //    (dst_start, dst_end)
-        if (r.start).max(self.src_range.start) <= (r.end).min(self.src_range.end) {
+        if (r.start).max(self.src_range.start)
+            <= (r.end).min(self.src_range.end)
+        {
             let start = if self.src_range.start >= r.start {
                 self.src_range.start
-            } else { r.start };
+            } else {
+                r.start
+            };
             let end = if self.src_range.end <= r.end {
                 self.src_range.end
-            } else { r.end };
-            let dst_start = start - self.src_range.start + self.dst_range.start;
-            let dst_end = end + self.dst_range.end - self.src_range.end;
+            } else {
+                r.end
+            };
+            let dst_start =
+                start - self.src_range.start + self.dst_range.start;
+            let dst_end =
+                end + self.dst_range.end - self.src_range.end;
             return Some((start..end, dst_start..dst_end));
         }
         None
@@ -327,9 +290,9 @@ mod tests {
                 humidity-to-location map:
                 60 56 37
                 56 93 4
-                "#
+            "#
         })
-            .unwrap();
+        .unwrap();
         // println!("{:?}", output);
         assert_eq!(output.src, "humidity");
         assert_eq!(output.dst, "location");
