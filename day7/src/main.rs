@@ -191,19 +191,6 @@ mod tests {
             "#
         };
         assert_eq!(6440, part1(input));
-    }
-
-    #[rstest]
-    fn test_part2() {
-        let input = indoc! {
-            r#"
-            32T3K 765
-            T55J5 684
-            KK677 28
-            KTJJT 220
-            QQQJA 483
-            "#
-        };
         assert_eq!(5905, part2(input));
     }
 
