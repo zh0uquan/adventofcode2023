@@ -118,12 +118,7 @@ impl Solution {
     }
 
     fn to_card_type(&self, label: &str) -> CardType {
-        let mut counters: HashMap<char, usize> = label.chars().fold(
-            HashMap::new(), |mut acc, c| {
-                *acc.entry(c).or_default() += 1;
-                acc
-            },
-        );
+        let mut counters: HashMap<char, usize> = label.chars().counts();
         let count = match self.part {
             Part::Part1 => {
                 let mut count: Vec<usize> = counters.into_values().collect();
