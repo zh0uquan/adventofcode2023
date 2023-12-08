@@ -1,7 +1,7 @@
-use std::iter::zip;
 use indoc::indoc;
-use roots::Roots;
 use roots::find_roots_quadratic;
+use roots::Roots;
+use std::iter::zip;
 
 fn main() {
     let input = indoc! {
@@ -10,17 +10,20 @@ fn main() {
         Distance:   213   1168   1086   1248"#
     };
     println!("{:?}", part1_and_part2(input))
-
 }
 
 fn part1_and_part2(input: &str) -> (usize, usize) {
-    let time: Vec<&str> = input.lines().next()
+    let time: Vec<&str> = input
+        .lines()
+        .next()
         .expect("should have first line")
         .strip_prefix("Time:")
         .expect("should have time prefix")
         .split_whitespace()
         .collect();
-    let distance: Vec<&str>= input.lines().nth(1)
+    let distance: Vec<&str> = input
+        .lines()
+        .nth(1)
         .expect("should have first line")
         .strip_prefix("Distance:")
         .expect("should have distance prefix")
@@ -28,26 +31,27 @@ fn part1_and_part2(input: &str) -> (usize, usize) {
         .collect();
 
     let part1_res: usize = zip(time.clone(), distance.clone())
-        .map(|(s1, s2)| (s1.parse::<f64>().unwrap(), s2.parse::<f64>().unwrap()))
+        .map(|(s1, s2)| {
+            (s1.parse::<f64>().unwrap(), s2.parse::<f64>().unwrap())
+        })
         .map(|(b, c)| compute_possible_ways(1f64, -b, c))
         .product();
-
 
     let part2_res: usize = compute_possible_ways(
         1f64,
         -1.0 * time.join("").parse::<f64>().unwrap(),
-            distance.join("").parse::<f64>().unwrap()
+        distance.join("").parse::<f64>().unwrap(),
     );
 
     (part1_res, part2_res)
-
 }
 
 fn compute_possible_ways(a: f64, b: f64, c: f64) -> usize {
     let roots = find_roots_quadratic(a, b, c);
     match roots {
         Roots::Two(bound) => {
-            let (mut low, mut high) = (*bound.first().unwrap(), *bound.last().unwrap());
+            let (mut low, mut high) =
+                (*bound.first().unwrap(), *bound.last().unwrap());
             if low.ceil() == low {
                 low = low.ceil() + 1.0;
             }
@@ -56,7 +60,7 @@ fn compute_possible_ways(a: f64, b: f64, c: f64) -> usize {
             }
             high.floor() as usize + 1 - low.ceil() as usize
         }
-        _ => unreachable!()
+        _ => unreachable!(),
     }
 }
 
@@ -82,4 +86,3 @@ mod tests {
         assert_eq!(part1_and_part2(input), (288, 71503))
     }
 }
-

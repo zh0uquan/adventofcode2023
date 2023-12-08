@@ -1,9 +1,9 @@
 use nom::bytes::complete::tag;
 use nom::character::complete::{space0, space1, u32 as nom_u32};
 use nom::error::Error;
-use nom::IResult;
-use nom::multi::{separated_list1};
+use nom::multi::separated_list1;
 use nom::sequence::{preceded, separated_pair};
+use nom::IResult;
 
 fn main() {
     let input = include_str!("input.txt");
@@ -15,33 +15,44 @@ fn main() {
 struct Card {
     id: u32,
     winning_numbers: Vec<u32>,
-    owning_numbers: Vec<u32>
+    owning_numbers: Vec<u32>,
 }
 
 fn parse_card(input: &str) -> IResult<&str, Card> {
-    let (input, (id, (winning_numbers, owning_numbers))) = separated_pair(
-        parse_card_id,
+    let (input, (id, (winning_numbers, owning_numbers))) =
+        separated_pair(
+            parse_card_id,
             tag(": "),
-        separated_pair(parse_numbers, tag(" | "), parse_numbers)
-    )(input)?;
-    Ok((input, Card {id, winning_numbers, owning_numbers}))
+            separated_pair(parse_numbers, tag(" | "), parse_numbers),
+        )(input)?;
+    Ok((
+        input,
+        Card {
+            id,
+            winning_numbers,
+            owning_numbers,
+        },
+    ))
 }
 
 fn parse_card_id(input: &str) -> IResult<&str, u32, Error<&str>> {
     preceded(tag("Card"), preceded(space1, nom_u32))(input)
 }
 
-fn parse_numbers(input: &str) -> IResult<&str, Vec<u32>, Error<&str>> {
+fn parse_numbers(
+    input: &str,
+) -> IResult<&str, Vec<u32>, Error<&str>> {
     separated_list1(space1, preceded(space0, nom_u32))(input)
 }
 
 fn part1(input: &str) -> u32 {
-    input.lines()
+    input
+        .lines()
         .map(|line| parse_card(line).unwrap().1)
         .map(|card| {
             card.owning_numbers.iter().fold(0u32, |mut acc, n| {
                 if card.winning_numbers.contains(n) {
-                    acc = if acc == 0 { 1 } else { acc * 2}
+                    acc = if acc == 0 { 1 } else { acc * 2 }
                 }
                 acc
             })
@@ -50,32 +61,30 @@ fn part1(input: &str) -> u32 {
 }
 
 fn part2(input: &str) -> u32 {
-    let cards: Vec<Card> = input.lines()
+    let cards: Vec<Card> = input
+        .lines()
         .map(|line| parse_card(line).unwrap().1)
         .collect();
-    cards.iter()
+    cards
+        .iter()
         .map(|card| {
-            let copy_nums = card.owning_numbers.iter().fold(0u32, |mut acc, n| {
+            card.owning_numbers.iter().fold(0u32, |mut acc, n| {
                 if card.winning_numbers.contains(n) {
-                    acc = if acc == 0 { 1 } else { acc + 1}
+                    acc = if acc == 0 { 1 } else { acc + 1 }
                 }
                 acc
-            });
-            copy_nums as usize
+            }) as usize
         })
         .enumerate()
         .fold(vec![1; cards.len()], |mut acc, (i, copy_nums)| {
-            (i+1..=i+copy_nums)
+            (i + 1..=i + copy_nums)
                 .filter(|n| *n < cards.len())
-                .for_each(|n| {
-                    acc[n] += acc[i]
-                });
+                .for_each(|n| acc[n] += acc[i]);
             acc
         })
         .iter()
         .sum()
 }
-
 
 #[cfg(test)]
 mod tests {

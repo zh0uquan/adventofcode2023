@@ -1,6 +1,6 @@
 use nom::branch::alt;
 use nom::bytes::complete::tag;
-use nom::character::complete::u32 as nom_u32;
+use nom::character::complete::{space0, space1, u32 as nom_u32};
 use nom::error::Error;
 use nom::multi::separated_list1;
 use nom::sequence::{preceded, separated_pair};
@@ -41,7 +41,7 @@ fn parse_colors(
 fn parse_color_pairs(
     input: &str,
 ) -> IResult<&str, ColorPairs, Error<&str>> {
-    separated_list1(tag(","), preceded(tag(" "), parse_color_number))(
+    separated_list1(tag(","), preceded(space1, parse_color_number))(
         input,
     )
 }
