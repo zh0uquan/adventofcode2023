@@ -14,11 +14,8 @@ fn visualize_part1(maze: &Maze, distance: &HashMap<Coord, u32>) {
                 && *distance.get(&(m, n)).unwrap() < 10
             {
                 string.push(
-                    char::from_digit(
-                        *distance.get(&(m, n)).unwrap(),
-                        10,
-                    )
-                    .unwrap(),
+                    char::from_digit(*distance.get(&(m, n)).unwrap(), 10)
+                        .unwrap(),
                 );
             } else {
                 string.push(maze.grid.get(&(m, n)).unwrap().form);
@@ -96,8 +93,7 @@ fn part2(input: &str) -> usize {
         stack = new_stack;
     }
 
-    let mut row_min_max_map: HashMap<usize, (usize, usize)> =
-        HashMap::new();
+    let mut row_min_max_map: HashMap<usize, (usize, usize)> = HashMap::new();
     for (m, n) in seen.iter() {
         row_min_max_map
             .entry(*m)
@@ -131,6 +127,7 @@ struct Pipe {
     form: char,
 }
 
+#[derive(Copy, Clone)]
 enum Direction {
     North,
     West,
@@ -141,18 +138,10 @@ enum Direction {
 impl Pipe {
     fn get_coord(self, direction: Direction) -> Coord {
         match direction {
-            Direction::North => {
-                (self.coord.0.saturating_sub(1), self.coord.1)
-            }
-            Direction::West => {
-                (self.coord.0, self.coord.1.saturating_sub(1))
-            }
-            Direction::East => {
-                (self.coord.0, self.coord.1.saturating_add(1))
-            }
-            Direction::South => {
-                (self.coord.0.saturating_add(1), self.coord.1)
-            }
+            Direction::North => (self.coord.0.saturating_sub(1), self.coord.1),
+            Direction::West => (self.coord.0, self.coord.1.saturating_sub(1)),
+            Direction::East => (self.coord.0, self.coord.1.saturating_add(1)),
+            Direction::South => (self.coord.0.saturating_add(1), self.coord.1),
         }
     }
 
@@ -244,50 +233,32 @@ impl Maze {
         let start = self.start;
         let mut start_neighbours = vec![];
 
-        if self.grid.contains_key(&start.get_coord(Direction::North))
-        {
-            let north = self
-                .grid
-                .get(&start.get_coord(Direction::North))
-                .unwrap();
-            match north.form {
-                '|' | '7' | 'F' => start_neighbours.push(north),
-                _ => (),
+        for direction in [
+            Direction::North,
+            Direction::West,
+            Direction::East,
+            Direction::South,
+        ] {
+            let pipe = self.grid.get(&start.get_coord(direction)).unwrap();
+            match direction {
+                Direction::North => match pipe.form {
+                    '|' | '7' | 'F' => start_neighbours.push(pipe),
+                    _ => (),
+                },
+                Direction::West => match pipe.form {
+                    '-' | 'F' | 'L' => start_neighbours.push(pipe),
+                    _ => (),
+                },
+                Direction::East => match pipe.form {
+                    '-' | 'J' | '7' => start_neighbours.push(pipe),
+                    _ => (),
+                },
+                Direction::South => match pipe.form {
+                    '|' | 'J' | 'L' => start_neighbours.push(pipe),
+                    _ => (),
+                },
             }
         }
-        if self.grid.contains_key(&start.get_coord(Direction::South))
-        {
-            let south = self
-                .grid
-                .get(&start.get_coord(Direction::South))
-                .unwrap();
-            match south.form {
-                '|' | 'J' | 'L' => start_neighbours.push(south),
-                _ => (),
-            }
-        }
-        if self.grid.contains_key(&start.get_coord(Direction::East)) {
-            let east = self
-                .grid
-                .get(&start.get_coord(Direction::East))
-                .unwrap();
-            match east.form {
-                '-' | 'J' | '7' => start_neighbours.push(east),
-                _ => (),
-            }
-        }
-
-        if self.grid.contains_key(&start.get_coord(Direction::West)) {
-            let west = self
-                .grid
-                .get(&start.get_coord(Direction::West))
-                .unwrap();
-            match west.form {
-                '-' | 'F' | 'L' => start_neighbours.push(west),
-                _ => (),
-            }
-        }
-
         start_neighbours
     }
 }
