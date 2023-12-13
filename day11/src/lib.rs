@@ -49,10 +49,8 @@ struct Universe {
 
 impl Universe {
     fn new(input: &str) -> Universe {
-        let grid: Vec<Vec<char>> = input
-            .lines()
-            .map(|line| line.chars().collect())
-            .collect();
+        let grid: Vec<Vec<char>> =
+            input.lines().map(|line| line.chars().collect()).collect();
         let height = grid.len();
         let width = grid[0].len();
         Universe {
@@ -109,10 +107,7 @@ impl Universe {
             }
         }
         for n in 0..self.width {
-            if (0..self.height)
-                .map(|m| self.grid[m][n])
-                .all(|c| c == '.')
-            {
+            if (0..self.height).map(|m| self.grid[m][n]).all(|c| c == '.') {
                 cols_indexes.push(n);
             }
         }
@@ -139,9 +134,7 @@ impl Universe {
         }
     }
 
-    fn get_pairs(
-        &self,
-    ) -> impl Iterator<Item = (Galaxy, Galaxy)> + '_ {
+    fn get_pairs(&self) -> impl Iterator<Item = (Galaxy, Galaxy)> + '_ {
         self.grid
             .iter()
             .enumerate()
@@ -166,9 +159,7 @@ impl Universe {
                 )
             })
             .filter(|coord| {
-                *coord != node
-                    && coord.0 < self.height
-                    && coord.1 < self.width
+                *coord != node && coord.0 < self.height && coord.1 < self.width
             })
             .collect()
     }
@@ -216,9 +207,7 @@ impl Universe {
             |n| {
                 self.get_neighbours(*n)
                     .iter()
-                    .map(|neighbour| {
-                        (*neighbour, edges[&(*neighbour, *n)])
-                    })
+                    .map(|neighbour| (*neighbour, edges[&(*neighbour, *n)]))
                     .collect::<Vec<(Coord, usize)>>()
             },
             heuristic,
@@ -299,10 +288,7 @@ mod tests {
         let edges = universe.edges(2);
         universe.get_pairs().for_each(|(g1, g2)| {
             if g1.id == 3 && g2.id == 6 {
-                assert_eq!(
-                    17,
-                    universe.a_star_distance((g1, g2), &edges)
-                );
+                assert_eq!(17, universe.a_star_distance((g1, g2), &edges));
             }
         });
 

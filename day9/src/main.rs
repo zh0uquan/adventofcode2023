@@ -29,10 +29,8 @@ fn process(input: &str) -> (i32, i32) {
         // println!("{}", history_value);
         sum += history_value;
 
-        let backward = vec
-            .iter()
-            .rev()
-            .fold(0, |acc, v| v.first().unwrap() - acc);
+        let backward =
+            vec.iter().rev().fold(0, |acc, v| v.first().unwrap() - acc);
         sum_2 += backward;
     }
     (sum, sum_2)

@@ -25,11 +25,9 @@ type ColorPairs<'a> = Vec<(u32, &'a str)>;
 fn parse_game(
     input: &str,
 ) -> IResult<&str, (u32, Vec<ColorPairs<'_>>), Error<&str>> {
-    separated_pair(
-        preceded(tag("Game "), nom_u32),
-        tag(":"),
-        parse_colors,
-    )(input)
+    separated_pair(preceded(tag("Game "), nom_u32), tag(":"), parse_colors)(
+        input,
+    )
 }
 
 fn parse_colors(
@@ -38,17 +36,11 @@ fn parse_colors(
     separated_list1(tag(";"), parse_color_pairs)(input)
 }
 
-fn parse_color_pairs(
-    input: &str,
-) -> IResult<&str, ColorPairs, Error<&str>> {
-    separated_list1(tag(","), preceded(space1, parse_color_number))(
-        input,
-    )
+fn parse_color_pairs(input: &str) -> IResult<&str, ColorPairs, Error<&str>> {
+    separated_list1(tag(","), preceded(space1, parse_color_number))(input)
 }
 
-fn parse_color_number(
-    input: &str,
-) -> IResult<&str, (u32, &str), Error<&str>> {
+fn parse_color_number(input: &str) -> IResult<&str, (u32, &str), Error<&str>> {
     separated_pair(
         nom_u32,
         tag(" "),

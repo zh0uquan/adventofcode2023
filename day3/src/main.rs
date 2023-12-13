@@ -60,8 +60,7 @@ fn gear_sum(input: &str) -> (u32, u32) {
                 continue;
             }
             for diff in [-1, 0, 1] {
-                if let Some(row) = row_number.checked_add_signed(diff)
-                {
+                if let Some(row) = row_number.checked_add_signed(diff) {
                     bucket
                         .entry(row)
                         .or_default()
@@ -150,8 +149,7 @@ impl<'a> Grid<'a> {
                 .filter(|(_, ch)| !ch.is_ascii_digit() && ch != &'.')
                 .for_each(|(c, _)| {
                     for diff in [-1, 0, 1] {
-                        if let Some(row) = r.checked_add_signed(diff)
-                        {
+                        if let Some(row) = r.checked_add_signed(diff) {
                             bucket
                                 .get(&row)
                                 .unwrap_or(&vec![])

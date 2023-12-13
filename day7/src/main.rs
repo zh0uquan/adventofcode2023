@@ -100,11 +100,7 @@ impl Solution {
         }
     }
 
-    fn to_card<'a>(
-        &self,
-        label: &'a str,
-        bid_str: &'a str,
-    ) -> Card<'a> {
+    fn to_card<'a>(&self, label: &'a str, bid_str: &'a str) -> Card<'a> {
         Card {
             label,
             bid: bid_str.parse::<u32>().expect("should be a number"),
@@ -113,19 +109,16 @@ impl Solution {
     }
 
     fn to_card_type(&self, label: &str) -> CardType {
-        let mut counters: HashMap<char, usize> =
-            label.chars().counts();
+        let mut counters: HashMap<char, usize> = label.chars().counts();
         let count = match self.part {
             Part::Part1 => {
-                let mut count: Vec<usize> =
-                    counters.into_values().collect();
+                let mut count: Vec<usize> = counters.into_values().collect();
                 count.sort();
                 count
             }
             Part::Part2 => {
                 let n_j = counters.remove(&'J').unwrap_or(0);
-                let mut count: Vec<usize> =
-                    counters.into_values().collect();
+                let mut count: Vec<usize> = counters.into_values().collect();
                 count.sort();
                 if count.is_empty() {
                     count = vec![5];
@@ -188,10 +181,7 @@ mod tests {
     }
 
     #[rstest]
-    fn test_order(
-        solution_part1: Solution,
-        solution_part2: Solution,
-    ) {
+    fn test_order(solution_part1: Solution, solution_part2: Solution) {
         assert_eq!(
             solution_part1.compare(
                 &solution_part1.to_card("AAAA2", "12"),
@@ -217,33 +207,12 @@ mod tests {
 
     #[rstest]
     fn test_parse_card_type(solution_part1: Solution) {
-        assert_eq!(
-            solution_part1.to_card_type("AAAAA"),
-            CardType::FiveKind
-        );
-        assert_eq!(
-            solution_part1.to_card_type("AA8AA"),
-            CardType::FourKind
-        );
-        assert_eq!(
-            solution_part1.to_card_type("23332"),
-            CardType::FullHouse
-        );
-        assert_eq!(
-            solution_part1.to_card_type("TTT98"),
-            CardType::ThreeKind
-        );
-        assert_eq!(
-            solution_part1.to_card_type("23432"),
-            CardType::TwoPair
-        );
-        assert_eq!(
-            solution_part1.to_card_type("A23A4"),
-            CardType::OnePair
-        );
-        assert_eq!(
-            solution_part1.to_card_type("23456"),
-            CardType::HighCard
-        );
+        assert_eq!(solution_part1.to_card_type("AAAAA"), CardType::FiveKind);
+        assert_eq!(solution_part1.to_card_type("AA8AA"), CardType::FourKind);
+        assert_eq!(solution_part1.to_card_type("23332"), CardType::FullHouse);
+        assert_eq!(solution_part1.to_card_type("TTT98"), CardType::ThreeKind);
+        assert_eq!(solution_part1.to_card_type("23432"), CardType::TwoPair);
+        assert_eq!(solution_part1.to_card_type("A23A4"), CardType::OnePair);
+        assert_eq!(solution_part1.to_card_type("23456"), CardType::HighCard);
     }
 }

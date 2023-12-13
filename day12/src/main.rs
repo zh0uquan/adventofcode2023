@@ -53,10 +53,7 @@ fn cached_count(springs: Vec<char>, numbers: Vec<usize>) -> usize {
         && (springs.len() == numbers[0] || springs[numbers[0]] != '#')
     {
         res += cached_count(
-            springs
-                .get(numbers[0] + 1..)
-                .unwrap_or_default()
-                .to_vec(),
+            springs.get(numbers[0] + 1..).unwrap_or_default().to_vec(),
             numbers.get(1..).unwrap_or_default().to_vec().to_vec(),
         )
     }

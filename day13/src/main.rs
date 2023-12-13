@@ -28,9 +28,7 @@ impl Matrix {
         let width = rows[0].len();
 
         let cols: Vec<Vec<u8>> = (0..width)
-            .map(|n| {
-                (0..height).map(|m| rows[m][n].clone()).collect()
-            })
+            .map(|n| (0..height).map(|m| rows[m][n]).collect())
             .collect();
 
         Matrix { rows, cols }
@@ -60,8 +58,7 @@ impl Matrix {
                                 return false;
                             }
                             smudge_n -= 1;
-                            if c1.abs_diff(*c2) == b'#'.abs_diff(b'.')
-                            {
+                            if c1.abs_diff(*c2) == b'#'.abs_diff(b'.') {
                                 return true;
                             }
                             false

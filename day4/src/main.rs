@@ -19,12 +19,11 @@ struct Card {
 }
 
 fn parse_card(input: &str) -> IResult<&str, Card> {
-    let (input, (id, (winning_numbers, owning_numbers))) =
-        separated_pair(
-            parse_card_id,
-            tag(": "),
-            separated_pair(parse_numbers, tag(" | "), parse_numbers),
-        )(input)?;
+    let (input, (id, (winning_numbers, owning_numbers))) = separated_pair(
+        parse_card_id,
+        tag(": "),
+        separated_pair(parse_numbers, tag(" | "), parse_numbers),
+    )(input)?;
     Ok((
         input,
         Card {
@@ -39,9 +38,7 @@ fn parse_card_id(input: &str) -> IResult<&str, u32, Error<&str>> {
     preceded(tag("Card"), preceded(space1, nom_u32))(input)
 }
 
-fn parse_numbers(
-    input: &str,
-) -> IResult<&str, Vec<u32>, Error<&str>> {
+fn parse_numbers(input: &str) -> IResult<&str, Vec<u32>, Error<&str>> {
     separated_list1(space1, preceded(space0, nom_u32))(input)
 }
 

@@ -21,12 +21,11 @@ fn part1(input: &str) -> u32 {
 
 fn part2(input: &str) -> u32 {
     let words = vec![
-        "one", "two", "three", "four", "five", "six", "seven",
-        "eight", "nine",
+        "one", "two", "three", "four", "five", "six", "seven", "eight", "nine",
     ];
     let digits = vec!["1", "2", "3", "4", "5", "6", "7", "8", "9"];
-    let mappings = zip(words.clone(), digits.clone())
-        .collect::<HashMap<&str, &str>>();
+    let mappings =
+        zip(words.clone(), digits.clone()).collect::<HashMap<&str, &str>>();
     let patterns = [&words[..], &digits[..]].concat();
 
     input

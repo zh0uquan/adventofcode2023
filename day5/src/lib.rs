@@ -3,21 +3,14 @@ use std::ops::Range;
 use indicatif::ProgressIterator;
 use itertools::Itertools;
 use nom::bytes::complete::tag;
-use nom::character::complete::{
-    alpha1, line_ending, space1, u64 as nom_u64,
-};
+use nom::character::complete::{alpha1, line_ending, space1, u64 as nom_u64};
 use nom::combinator::opt;
 use nom::error::Error;
 use nom::multi::{many1, separated_list1};
-use nom::sequence::{
-    delimited, pair, preceded, separated_pair, terminated,
-};
+use nom::sequence::{delimited, pair, preceded, separated_pair, terminated};
 use nom::IResult;
 
-fn find_min<T: ExactSizeIterator<Item = u64>>(
-    it: T,
-    maps: &[Map],
-) -> u64 {
+fn find_min<T: ExactSizeIterator<Item = u64>>(it: T, maps: &[Map]) -> u64 {
     it.map(|n| {
         maps.iter().fold(n, |mut acc, m| {
             acc = m.convert(acc);
@@ -132,9 +125,7 @@ struct RangeMap {
 impl RangeMap {
     fn convert(&self, n: u64) -> Option<u64> {
         if self.src_range.contains(&n) {
-            return Some(
-                (n - self.src_range.start) + self.dst_range.start,
-            );
+            return Some((n - self.src_range.start) + self.dst_range.start);
         }
         None
     }
@@ -160,8 +151,7 @@ impl RangeMap {
             };
             let dst_start =
                 start - self.src_range.start + self.dst_range.start;
-            let dst_end =
-                end + self.dst_range.end - self.src_range.end;
+            let dst_end = end + self.dst_range.end - self.src_range.end;
             return Some((start..end, dst_start..dst_end));
         }
         None
@@ -179,26 +169,18 @@ fn parse_garden(input: &str) -> IResult<&str, (Vec<u64>, Vec<Map>)> {
     Ok((input, (seeds, output)))
 }
 
-fn parse_map_title(
-    input: &str,
-) -> IResult<&str, (&str, &str), Error<&str>> {
+fn parse_map_title(input: &str) -> IResult<&str, (&str, &str), Error<&str>> {
     separated_pair(
         alpha1,
         tag("-to-"),
-        terminated(
-            alpha1,
-            delimited(space1, tag("map:"), line_ending),
-        ),
+        terminated(alpha1, delimited(space1, tag("map:"), line_ending)),
     )(input)
 }
 
 fn parse_map(input: &str) -> IResult<&str, Map> {
     let (input, (title, vecs)) = pair(
         preceded(opt(line_ending), parse_map_title),
-        many1(terminated(
-            separated_list1(space1, nom_u64),
-            line_ending,
-        )),
+        many1(terminated(separated_list1(space1, nom_u64), line_ending)),
     )(input)?;
 
     let range_maps = vecs

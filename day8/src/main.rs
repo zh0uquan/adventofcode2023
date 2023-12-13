@@ -55,9 +55,7 @@ fn find_step<I: Iterator<Item = Instruction>>(
             .expect("should have instruction in ins iterator");
         curr = match ins {
             Instruction::Left => network.net.get(curr).unwrap().left,
-            Instruction::Right => {
-                network.net.get(curr).unwrap().right
-            }
+            Instruction::Right => network.net.get(curr).unwrap().right,
         };
         step += 1;
     }
@@ -119,9 +117,7 @@ fn parse_navigate(input: &str) -> IResult<&str, (&str, &str)> {
 
 fn parse_network(input: &str) -> IResult<&str, Node> {
     let (input, (node_id, (left, right))) =
-        separated_pair(alphanumeric1, tag(" = "), parse_navigate)(
-            input,
-        )?;
+        separated_pair(alphanumeric1, tag(" = "), parse_navigate)(input)?;
     Ok((
         input,
         Node {
