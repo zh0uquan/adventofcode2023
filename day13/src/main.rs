@@ -38,36 +38,15 @@ impl Matrix {
         let find_index = |lines: &Vec<Vec<u8>>| -> Option<usize> {
             (0..lines.len() - 1)
                 .position(|index| {
-                    let mut smudge_n = smudge_n;
-                    let is_match = zip(
+                    let diff = zip(
                         lines[..index + 1].iter().rev(),
                         lines[index + 1..].iter(),
                     )
-                    .all(|(l1, l2)| {
-                        if l1 == l2 {
-                            return true;
-                        }
-                        if smudge_n == 0 {
-                            return false;
-                        }
-                        zip(l1, l2).all(|(c1, c2)| {
-                            if c1 == c2 {
-                                return true;
-                            }
-                            if smudge_n == 0 {
-                                return false;
-                            }
-                            smudge_n -= 1;
-                            if c1.abs_diff(*c2) == b'#'.abs_diff(b'.') {
-                                return true;
-                            }
-                            false
-                        })
-                    });
-                    if smudge_n == 0 && is_match {
-                        return true;
-                    }
-                    false
+                    .map(|(l1, l2)| {
+                        zip(l1, l2).filter(|(c1, c2)| c1 != c2).count()
+                    })
+                    .sum::<usize>();
+                    diff == smudge_n
                 })
                 .map(|index| index + 1)
         };
