@@ -56,7 +56,11 @@ fn part1(input: &str) -> usize {
     *distance.values().max().unwrap() as usize
 }
 
-fn ray_check_inside(coord: &Coord, seen: &HashSet<Coord>, maze: &Maze) -> bool {
+fn ray_check_inside(
+    coord: &Coord,
+    seen: &HashSet<Coord>,
+    maze: &Maze,
+) -> bool {
     // ray check from 0 to the coord
     let mut count = 0;
     let mut y = coord.1;
