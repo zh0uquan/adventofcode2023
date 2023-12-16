@@ -16,7 +16,7 @@ def download_aoc_input():
     session = os.environ.get("SESSION")
     num = "".join(n for n in day if n.isdigit())
     response = requests.get(
-        f"https://adventofcode.com/2022/day/{num}/input",
+        f"https://adventofcode.com/2023/day/{num}/input",
         cookies={
             "session": session
         }
