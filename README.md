@@ -1,3 +1,3 @@
-This project is about fun and better understanding FP in Rust.
+This repo is all about fun and better understanding Functional Programming in Rust.
 
-Every every each dir solves a day challenge from https://adventofcode.com/
+Each "day*" directory solves a day challenge from https://adventofcode.com/
