@@ -5,14 +5,14 @@ from pathlib import Path
 import requests
 import argparse
 
+CURRENT_PATH = Path(".")
+
 def download_aoc_input():
     parser = argparse.ArgumentParser()
     parser.add_argument("--day")
-    parser.add_argument("--current-working-directory")
     args = parser.parse_args()
 
     day = str(args.day)
-    current_working_directory = args.current_working_directory
     session = os.environ.get("SESSION")
     num = "".join(n for n in day if n.isdigit())
     response = requests.get(
@@ -21,10 +21,7 @@ def download_aoc_input():
             "session": session
         }
     )
-    print(args.current_working_directory)
-    # print(response.text)
-    curr_path = Path(current_working_directory)
-    with open(curr_path / day / "src" / "input.txt", "w+") as f:
+    with open(CURRENT_PATH / day / "src" / "input.txt", "w+") as f:
         f.write(response.text)
 
 

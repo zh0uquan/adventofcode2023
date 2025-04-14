@@ -3,6 +3,6 @@ create day:
     just get-input {{day}}
 
 get-input day:
-    ./scripts/get_aoc_input.py --day {{day}} --current-working-directory {{justfile_directory()}}
+    python scripts/get_aoc_input.py --day {{day}}
 
 set dotenv-load := true
